@@ -1,0 +1,65 @@
+﻿@{
+    var db = Database.Open("Chinook");
+
+    var insertQuery = "INSERT INTO Track(Name, AlbumId, MediaTypeId, GenreId, Composer, Milliseconds, Bytes, UnitPrice) VALUES(@0,@1,@2,@3,@4,@5,@6,@7)";
+    var unitPrice = 0.99; // default to 99 cents
+    var rnd = new Random();
+    var bytes = rnd.Next(4000000, 11000000);
+    var milliseconds = rnd.Next(180000, 600000);
+
+    if (IsPost)
+    {
+        // TODO: validation....
+        var song = Request["TrackName"];
+        var album = Request["AlbumId"];
+        var mediaTypeId = Request["MediaTypeId"];
+        var genreId = Request["GenreId"];
+        var composer = Request["Composer"];
+
+        db.Execute(insertQuery, song, album, mediaTypeId, genreId, composer, milliseconds, bytes, unitPrice);
+    <p>Insert successful</p> 
+    }
+}
+<h1>Album Tracks</h1>
+<form method="post">
+    Track Name
+    <input type="text" name="TrackName" id="TrackName" required="required" />
+    <br />
+    Album
+    <select name="AlbumId">
+        @{
+            var albums = db.Query("SELECT AlbumId, Title FROM Album ORDER BY Title");
+            foreach (var row in albums)
+            {
+            <option value="@row.AlbumId">@row.Title</option>
+            }
+        }
+    </select>
+    <br />
+    Media Type
+    <select name="MediaTypeId">
+        @{
+            var media = db.Query("SELECT MediaTypeId, Name FROM MediaType ORDER BY Name");
+            foreach (var row in media)
+            {
+            <option value="@row.MediaTypeId">@row.Name</option>
+            }
+        }
+    </select>
+    <br />
+    Genre
+    <select name="GenreId">
+        @{
+            var genre = db.Query("SELECT GenreId, Name FROM Genre ORDER BY Name");
+            foreach (var row in genre)
+            {
+            <option value="@row.GenreId">@row.Name</option>
+            }
+        }
+    </select>
+    <br />
+    Composer
+    <input type="text" name="Composer" id="Composer" required="required" />
+    <br />
+    <input type="submit" value="Add Track" />
+</form>
